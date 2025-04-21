@@ -95,5 +95,5 @@ def index():
 if __name__ == "__main__":
     import os
     bot.remove_webhook()
-    bot.set_webhook(url=f"https://https://tgb-mv9m.onrender.com/{TOKEN}")  # <-- твой Render URL
+    bot.set_webhook(url=f"https://tgb-mv9m.onrender.com/{TOKEN}")  # <-- твой Render URL
     app.run(host="0.0.0.0", port=int(os.environ.get('PORT', 5000)))
