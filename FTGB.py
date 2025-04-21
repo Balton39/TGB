@@ -1,32 +1,29 @@
 import telebot
 from telebot import types
+from flask import Flask, request
 
-bot = telebot.TeleBot("8057642755:AAGWAf1TMxEtYNeB3CkCx_vPyqS7eHisuDo")
+TOKEN = "ТВОЙ_ТОКЕН_ТУТ"
+bot = telebot.TeleBot(TOKEN)
+app = Flask(__name__)
 
-# Стартовое сообщение с кнопкой "Начать"
+# Главное меню
 @bot.message_handler(commands=['start'])
 def send_start(message):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     markup.add("Начать")
-    bot.send_message(
-        message.chat.id,
-        "Ассаламу алейкум Алмаз! Я бот Алихан. Могу помочь тебе в твоих вопросах.",
-        reply_markup=markup
-    )
+    bot.send_message(message.chat.id, "Ассаламу алейкум, Алмаз! Я бот Алихан. Могу помочь тебе в твоих вопросах.", reply_markup=markup)
 
-# Главное меню
-def show_main_menu(message):
+@bot.message_handler(func=lambda message: message.text == "Начать")
+def send_welcome(message):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     markup.add("Поиск КХыргызов", "Поиск должников в Калининграде")
     markup.add("Продвижение на WB", "Обучение Ozon", "Реклама Авито")
     bot.send_message(message.chat.id, "Выбери одну из опций:", reply_markup=markup)
 
-# Обработка кнопок
+# Кнопки
 @bot.message_handler(func=lambda message: True)
 def handle_buttons(message):
-    if message.text == "Начать":
-        show_main_menu(message)
-    elif message.text == "Поиск КХыргызов" or message.text == "Поиск должников в Калининграде":
+    if message.text == "Поиск КХыргызов" or message.text == "Поиск должников в Калининграде":
         bot.send_message(message.chat.id, "Введите имя:")
         bot.register_next_step_handler(message, lambda m: ask_age(m, message.text))
     elif message.text == "Продвижение на WB":
@@ -36,7 +33,7 @@ def handle_buttons(message):
     elif message.text == "Реклама Авито":
         send_avito_tips(message)
     elif message.text == "В главное меню":
-        show_main_menu(message)
+        send_welcome(message)
 
 # Последовательность вопросов
 user_data = {}
@@ -82,5 +79,21 @@ def send_avito_tips(message):
     markup.add("В главное меню")
     bot.send_message(message.chat.id, tips, reply_markup=markup)
 
-# Запуск
-bot.polling()
+# Webhook часть
+@app.route(f"/{TOKEN}", methods=['POST'])
+def receive_update():
+    json_str = request.get_data().decode('utf-8')
+    update = telebot.types.Update.de_json(json_str)
+    bot.process_new_updates([update])
+    return 'ok', 200
+
+@app.route("/", methods=['GET'])
+def index():
+    return "Бот работает!", 200
+
+# Установка webhook при запуске
+if __name__ == "__main__":
+    import os
+    bot.remove_webhook()
+    bot.set_webhook(url=f"https://tgb-mv9m.onrender.com/{TOKEN}")  # <-- твой Render URL
+    app.run(host="0.0.0.0", port=int(os.environ.get('PORT', 5000)))
