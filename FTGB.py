@@ -2,7 +2,7 @@ import telebot
 from telebot import types
 from flask import Flask, request
 
-TOKEN = "ТВОЙ_ТОКЕН_ТУТ"
+TOKEN = "8057642755:AAGWAf1TMxEtYNeB3CkCx_vPyqS7eHisuDo"
 bot = telebot.TeleBot(TOKEN)
 app = Flask(__name__)
 
@@ -95,5 +95,5 @@ def index():
 if __name__ == "__main__":
     import os
     bot.remove_webhook()
-    bot.set_webhook(url=f"https://tgb-mv9m.onrender.com/{TOKEN}")  # <-- твой Render URL
+    bot.set_webhook(url=f"https://https://tgb-mv9m.onrender.com/{TOKEN}")  # <-- твой Render URL
     app.run(host="0.0.0.0", port=int(os.environ.get('PORT', 5000)))
